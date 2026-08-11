@@ -1,21 +1,58 @@
-# Torn Deal Finder Pro v4
+# Torn Deal Finder Pro v4.2
 
-A read-only Torn market intelligence service for a Linux VPS. It scans Torn API v2 Item Market data, filters suspicious pricing, ranks realistic opportunities, stores history in SQLite, and sends interactive Telegram alerts.
+A read-only Torn market intelligence service for a Linux VPS with an interactive Telegram control panel and a manual selling assistant.
 
-## v4 highlights
+## Core scanner
 
-- Interactive Telegram commands: `/status`, `/top`, `/history <item>`, `/watch <item>`, `/unwatch <item>`, `/watchlist`, `/budget`, `/minprofit`, `/minroi`, `/pause`, `/resume`, `/settings`, `/help`.
-- Live reference pricing from multiple listings rather than a single displayed value.
-- Historical reference sanity checks to reject sudden suspicious market jumps.
-- Support-depth requirement: multiple listings must exist near the reference price.
-- Optional API average-price anchor when Torn provides it.
-- Listing turnover tracking in SQLite to estimate whether an item is actually moving.
-- Confidence, turnover, capital-efficiency, ROI and profit combined into a deal score.
-- Global ranking so Telegram receives the best opportunities first.
-- Runtime settings persist in SQLite, so `/budget`, `/watch`, `/pause`, etc. survive restarts.
-- Duplicate/cooldown protection and API rate-limit backoff.
+- Scans Torn API v2 Item Market listings.
+- Builds reference prices from market depth instead of trusting one listing.
+- Uses stored history, support depth, API average anchors, turnover estimates, ROI and capital efficiency.
+- Ranks opportunities and sends only the strongest alerts.
+- Stores data and runtime settings in SQLite.
+- Telegram commands for status, watchlists, thresholds, item browsing and market snapshots.
 
-The program **never buys, sells, travels, trains, uses items, or performs gameplay actions**.
+## Selling assistant
+
+Torn currently does not expose player inventory through the API, so v4.2 includes a private inventory ledger that you update through Telegram. The bot then uses live Item Market data to recommend sale prices and estimate post-fee profit.
+
+Commands:
+
+```text
+/own Xanax 10 700000
+/addown Xanax 5 710000
+/inventory
+/sell Xanax
+/undercut Xanax 1000
+/sellplan
+/sold Xanax 5 810000
+/sales
+```
+
+`/own <item> <qty> [cost_each]` sets a tracked holding. `/addown` adds to it and recalculates weighted average cost. `/sell` compares the holding with current market listings and calculates a suggested price, estimated net proceeds and estimated profit. `/undercut` lets you specify the undercut amount. `/sellplan` ranks your tracked holdings for selling. `/sold` records a completed sale and reduces the tracked quantity.
+
+The bot **never submits a listing or performs a gameplay action**. Final sale listings are confirmed manually in Torn.
+
+## Other Telegram commands
+
+```text
+/status
+/top
+/history Xanax
+/items Candy
+/categories
+/find xanax
+/item Xanax
+/watch Xanax
+/unwatch Xanax
+/watchlist
+/budget 5000000
+/minprofit 50000
+/minroi 8
+/pause
+/resume
+/settings
+/help
+```
 
 ## Install on Ubuntu/Debian VPS
 
@@ -49,44 +86,21 @@ source venv/bin/activate
 python app.py
 ```
 
-## Telegram controls
-
-```text
-/status
-/top
-/history Xanax
-/watch Can of Taurine Elite
-/unwatch Bag of Candy Kisses
-/watchlist
-/budget 5000000
-/minprofit 50000
-/minroi 8
-/pause
-/resume
-/settings
-/help
-```
-
-`/budget` is the maximum capital allowed for one detected deal, not your total Torn cash.
-
-## How v4 validates a deal
-
-A low listing is not automatically considered a bargain. The scanner first builds a reference from a cluster of current listings, trims outliers, requires multiple supporting listings near that reference, compares the reference against recent stored history and Torn's API average when available, then calculates post-fee profit and ROI. Items with weak depth or suspicious reference jumps are rejected.
-
-The turnover score is an estimate based on listings appearing/disappearing between scans. It is useful as a relative signal, but it is **not actual Torn sales volume**.
-
-## API load
-
-Torn's documentation states an API limit of up to 100 individual requests per minute and notes that identical API requests may be cached for up to 30 seconds. v4 therefore defaults to a moderate watchlist and a five-minute scan cycle rather than aggressive polling.
-
-## Updating the VPS later
+## Updating
 
 ```bash
 cd ~/torn-deal-finder
 git pull
+```
+
+If running with systemd:
+
+```bash
 sudo systemctl restart torn-deal-finder
 ```
 
-## Files that must stay private
+If running manually, stop the old process and start `python app.py` again.
 
-Never commit your `config.json` if you put secrets in it, `.env`, `~/.torn-env`, or `torn_deals.sqlite3`. The included `.gitignore` excludes the common runtime files.
+## Privacy
+
+Never commit Torn API keys, Telegram tokens, `config.json` containing secrets, `.env`, `~/.torn-env`, or the SQLite database. The included `.gitignore` excludes common runtime files.
