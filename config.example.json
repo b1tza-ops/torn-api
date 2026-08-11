@@ -1,5 +1,5 @@
 {
-  "_comment": "Torn Deal Finder Pro v4.2. Keep secrets in environment variables, not here.",
+  "_comment": "Torn Deal Finder Pro v7. Keep API/Telegram secrets in environment variables.",
   "scan_interval_seconds": 300,
   "per_item_delay_seconds": 1.2,
   "market_limit": 100,
@@ -10,44 +10,33 @@
   "reference_max_deviation_percent": 22,
   "support_band_percent": 7,
   "min_support_listings": 5,
-  "max_anchor_deviation_percent": 35,
-  "max_reference_jump_percent": 30,
   "historical_reference_hours": 24,
   "live_reference_weight": 0.7,
-  "turnover_window_hours": 6,
   "alert_cooldown_minutes": 180,
   "max_alerts_per_cycle": 5,
-  "bankroll": {"max_capital_per_deal": 5000000},
-  "selling": {
-    "undercut_percent": 0.15,
-    "minimum_undercut": 1,
-    "min_margin_percent": 3,
-    "sellplan_limit": 15
+  "bankroll": {
+    "max_capital_per_deal": 5000000
   },
   "deal_rules": {
     "min_roi_percent": 7,
-    "min_profit_per_item": 3000,
     "min_total_profit": 15000,
     "min_discount_percent": 7,
     "min_confidence_percent": 45,
-    "min_support_listings": 5,
     "max_quantity_to_value": 1000
   },
-  "type_rules": {
-    "drug": {"min_roi_percent": 5, "min_profit_per_item": 20000, "min_total_profit": 30000, "min_discount_percent": 5},
-    "plush": {"min_roi_percent": 7, "min_profit_per_item": 1500, "min_total_profit": 10000},
-    "flower": {"min_roi_percent": 7, "min_profit_per_item": 1200, "min_total_profit": 10000},
-    "energy": {"min_roi_percent": 7, "min_profit_per_item": 4000, "min_total_profit": 15000},
-    "alcohol": {"min_roi_percent": 8, "min_profit_per_item": 1000, "min_total_profit": 10000},
-    "medical": {"min_roi_percent": 8, "min_profit_per_item": 1000, "min_total_profit": 10000},
-    "temporary": {"min_roi_percent": 8, "min_profit_per_item": 2500, "min_total_profit": 15000},
-    "candy": {"min_roi_percent": 9, "min_profit_per_item": 1200, "min_total_profit": 12000}
+  "selling": {
+    "target_profit_percent": 5,
+    "undercut_amount": 1,
+    "sale_fee_percent": 5
   },
   "scanner": {
     "categories": ["Drug", "Plushie", "Flower", "Energy", "Alcohol", "Medical", "Temporary", "Candy"],
     "item_ids": [],
     "item_names": ["Xanax"],
-    "max_items": 80
+    "max_items": 60
   },
-  "telegram": {"bot_token": "", "chat_id": ""}
+  "telegram": {
+    "bot_token": "",
+    "chat_id": ""
+  }
 }
