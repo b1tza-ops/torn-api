@@ -1,38 +1,37 @@
 {
-  "_comment": "Set secrets as environment variables. Tune thresholds to your own strategy.",
-  "check_interval_seconds": 60,
-  "per_item_delay_seconds": 1.5,
+  "_comment": "Copy to config.json. Keep API and Telegram secrets in environment variables, never GitHub.",
+  "scan_interval_seconds": 300,
+  "per_item_delay_seconds": 2.0,
   "sale_fee_percent": 5,
-  "reference_top_n": 20,
-  "ignore_cheapest_for_reference": 1,
-  "min_roi_percent": 8,
-  "min_profit_per_item": 25000,
-  "min_discount_percent": 8,
-  "max_listing_cost": 5000000,
-  "remember_seen": 5000,
-  "heartbeat_hours": 12,
-  "telegram": {
-    "bot_token": "",
-    "chat_id": ""
+  "reference_top_n": 25,
+  "ignore_cheapest_for_reference": 2,
+  "min_listings_for_reference": 5,
+  "reference_max_deviation_percent": 25,
+  "alert_cooldown_minutes": 180,
+  "max_alerts_per_cycle": 5,
+  "bankroll": {"max_capital_per_deal": 5000000},
+  "deal_rules": {
+    "min_roi_percent": 7,
+    "min_profit_per_item": 5000,
+    "min_total_profit": 15000,
+    "min_discount_percent": 7,
+    "min_confidence_percent": 35,
+    "max_quantity_to_value": 1000
   },
-  "items": [
-    {
-      "name": "Xanax",
-      "id": 206,
-      "min_roi_percent": 7,
-      "min_profit_per_item": 30000,
-      "min_discount_percent": 7,
-      "max_listing_cost": 5000000,
-      "max_alerts_per_cycle": 2
-    },
-    {
-      "name": "Panda Plushie",
-      "id": 258,
-      "min_roi_percent": 8,
-      "min_profit_per_item": 2500,
-      "min_discount_percent": 8,
-      "max_listing_cost": 5000000,
-      "max_alerts_per_cycle": 2
-    }
-  ]
+  "type_rules": {
+    "drug": {"min_roi_percent": 5, "min_profit_per_item": 20000, "min_total_profit": 30000, "min_discount_percent": 5},
+    "plush": {"min_roi_percent": 7, "min_profit_per_item": 2000, "min_total_profit": 10000},
+    "flower": {"min_roi_percent": 7, "min_profit_per_item": 1500, "min_total_profit": 10000},
+    "energy": {"min_roi_percent": 7, "min_profit_per_item": 5000, "min_total_profit": 15000},
+    "alcohol": {"min_roi_percent": 8, "min_profit_per_item": 1000, "min_total_profit": 10000},
+    "medical": {"min_roi_percent": 8, "min_profit_per_item": 1000, "min_total_profit": 10000},
+    "temporary": {"min_roi_percent": 8, "min_profit_per_item": 3000, "min_total_profit": 15000}
+  },
+  "scanner": {
+    "categories": ["Drug", "Plushie", "Flower", "Energy", "Alcohol", "Medical", "Temporary", "Candy"],
+    "item_ids": [],
+    "item_names": ["Xanax"],
+    "max_items": 60
+  },
+  "telegram": {"bot_token": "", "chat_id": ""}
 }
