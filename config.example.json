@@ -1,0 +1,38 @@
+{
+  "_comment": "Set secrets as environment variables. Tune thresholds to your own strategy.",
+  "check_interval_seconds": 60,
+  "per_item_delay_seconds": 1.5,
+  "sale_fee_percent": 5,
+  "reference_top_n": 20,
+  "ignore_cheapest_for_reference": 1,
+  "min_roi_percent": 8,
+  "min_profit_per_item": 25000,
+  "min_discount_percent": 8,
+  "max_listing_cost": 5000000,
+  "remember_seen": 5000,
+  "heartbeat_hours": 12,
+  "telegram": {
+    "bot_token": "",
+    "chat_id": ""
+  },
+  "items": [
+    {
+      "name": "Xanax",
+      "id": 206,
+      "min_roi_percent": 7,
+      "min_profit_per_item": 30000,
+      "min_discount_percent": 7,
+      "max_listing_cost": 5000000,
+      "max_alerts_per_cycle": 2
+    },
+    {
+      "name": "Panda Plushie",
+      "id": 258,
+      "min_roi_percent": 8,
+      "min_profit_per_item": 2500,
+      "min_discount_percent": 8,
+      "max_listing_cost": 5000000,
+      "max_alerts_per_cycle": 2
+    }
+  ]
+}
