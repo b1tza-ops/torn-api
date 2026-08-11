@@ -1,74 +1,56 @@
-# Torn Deal Finder Pro v4.2
+# Torn Deal Finder Pro v7
 
-A read-only Torn market intelligence service for a Linux VPS with an interactive Telegram control panel and a manual selling assistant.
+Clean rewrite of the Torn market assistant. The app is read-only with respect to Torn: it reads API data, tracks your confirmed/manual holdings locally, and gives you buy/sell guidance through Telegram. It does **not** submit purchases, listings, travel, training, item use, or other gameplay actions.
 
-## Core scanner
+## Core workflow
 
-- Scans Torn API v2 Item Market listings.
-- Builds reference prices from market depth instead of trusting one listing.
-- Uses stored history, support depth, API average anchors, turnover estimates, ROI and capital efficiency.
-- Ranks opportunities and sends only the strongest alerts.
-- Stores data and runtime settings in SQLite.
-- Telegram commands for status, watchlists, thresholds, item browsing and market snapshots.
+1. Scanner checks a controlled watchlist of liquid Torn items.
+2. A strong deal creates a Telegram alert with **I bought it**.
+3. You confirm the actual quantity bought.
+4. The bot stores the purchase and maintains weighted-average cost.
+5. Portfolio tracks estimated net value, unrealized P/L and realized P/L.
+6. The bot monitors held items for exit opportunities.
+7. The Sell screen recommends a price and shows expected after-fee P/L.
+8. After you sell manually in Torn, **Mark sold** records actual quantity and price.
 
-## Selling assistant
+## Telegram menu
 
-Torn currently does not expose player inventory through the API, so v4.2 includes a private inventory ledger that you update through Telegram. The bot then uses live Item Market data to recommend sale prices and estimate post-fee profit.
+`/menu` opens:
 
-Commands:
+- **Deals** — recent detected opportunities
+- **Portfolio** — owned positions, average cost, estimated P/L
+- **Add existing** — add items you already owned before the bot
+- **Sell** — pick an owned item and get a live sell recommendation
+- **Market** — search an item and view live market/reference data
+- **Watchlist** — add/remove watched items
+- **Settings** — budget, minimum ROI/profit, target exit ROI and fee
+- **Pause/Resume** — stops scanning while keeping Telegram controls available
 
-```text
-/own Xanax 10 700000
-/addown Xanax 5 710000
-/inventory
-/sell Xanax
-/undercut Xanax 1000
-/sellplan
-/sold Xanax 5 810000
-/sales
-```
+### Adding existing inventory
 
-`/own <item> <qty> [cost_each]` sets a tracked holding. `/addown` adds to it and recalculates weighted average cost. `/sell` compares the holding with current market listings and calculates a suggested price, estimated net proceeds and estimated profit. `/undercut` lets you specify the undercut amount. `/sellplan` ranks your tracked holdings for selling. `/sold` records a completed sale and reduces the tracked quantity.
+Tap **Add existing**, type part of the Torn item name, select the matching item, then enter quantity and average purchase price. Enter `0` for unknown cost basis. The item immediately appears in Portfolio and Sell.
 
-The bot **never submits a listing or performs a gameplay action**. Final sale listings are confirmed manually in Torn.
+### Confirming a new purchase
 
-## Other Telegram commands
+Deal alerts contain **✅ I bought it**. Tap it and enter the quantity you actually purchased. Repeated purchases automatically update the weighted-average cost.
 
-```text
-/status
-/top
-/history Xanax
-/items Candy
-/categories
-/find xanax
-/item Xanax
-/watch Xanax
-/unwatch Xanax
-/watchlist
-/budget 5000000
-/minprofit 50000
-/minroi 8
-/pause
-/resume
-/settings
-/help
-```
+### Selling
 
-## Install on Ubuntu/Debian VPS
+Portfolio/Sell shows current cheapest listing, calculated reference price, suggested listing price, confidence, estimated net P/L and ROI. You perform the listing manually in Torn. Afterwards tap **Mark sold**, enter the quantity and actual sale price, and the bot updates your position and realized P/L.
+
+## VPS install/update
 
 ```bash
 sudo apt update
 sudo apt install -y python3 python3-pip python3-venv git
-cd ~
-git clone https://github.com/b1tza-ops/torn-api.git torn-deal-finder
-cd torn-deal-finder
+cd ~/torn-deal-finder
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 cp config.example.json config.json
 ```
 
-Create `~/.torn-env`:
+Set secrets in `~/.torn-env`:
 
 ```bash
 export TORN_API_KEY="YOUR_TORN_KEY"
@@ -76,31 +58,27 @@ export TELEGRAM_BOT_TOKEN="YOUR_TELEGRAM_TOKEN"
 export TELEGRAM_CHAT_ID="YOUR_CHAT_ID"
 ```
 
-Then:
+Run:
 
 ```bash
-chmod 600 ~/.torn-env
 source ~/.torn-env
-cd ~/torn-deal-finder
 source venv/bin/activate
 python app.py
 ```
 
-## Updating
+For later updates:
 
 ```bash
 cd ~/torn-deal-finder
 git pull
 ```
 
-If running with systemd:
+Then restart the process/service.
 
-```bash
-sudo systemctl restart torn-deal-finder
-```
+## Persistence
 
-If running manually, stop the old process and start `python app.py` again.
+Runtime data lives in `torn_deals.sqlite3`, including holdings, confirmed purchases, sales, price samples, deal history, runtime settings and alert cooldown state. Existing `holdings` data from earlier versions is retained where compatible.
 
-## Privacy
+## Safety / practical limits
 
-Never commit Torn API keys, Telegram tokens, `config.json` containing secrets, `.env`, `~/.torn-env`, or the SQLite database. The included `.gitignore` excludes common runtime files.
+The Torn API does not provide a reliable full personal inventory feed for this workflow, so inventory is built from items you manually add or purchases you confirm. Market reference prices are estimates, not guaranteed resale prices. The scanner uses a moderate watchlist and polling cadence to avoid aggressive API use.
