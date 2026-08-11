@@ -1,5 +1,5 @@
 {
-  "_comment": "Torn Deal Finder Pro v4. Keep secrets in environment variables, not here.",
+  "_comment": "Torn Deal Finder Pro v4.2. Keep secrets in environment variables, not here.",
   "scan_interval_seconds": 300,
   "per_item_delay_seconds": 1.2,
   "market_limit": 100,
@@ -18,6 +18,12 @@
   "alert_cooldown_minutes": 180,
   "max_alerts_per_cycle": 5,
   "bankroll": {"max_capital_per_deal": 5000000},
+  "selling": {
+    "undercut_percent": 0.15,
+    "minimum_undercut": 1,
+    "min_margin_percent": 3,
+    "sellplan_limit": 15
+  },
   "deal_rules": {
     "min_roi_percent": 7,
     "min_profit_per_item": 3000,
