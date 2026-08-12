@@ -1,10 +1,27 @@
 import os,time,json
 from pathlib import Path
 from .runtime import MarketAssistant
-from .core import money,kb,b,market_link,now
+from .core import money,kb,b,now
 from .island import dashboard_text, capital_limits, snapshot
+from .links import market_link, fallback_market_link, register_catalog
+from . import core as core_module
+from . import runtime as runtime_module
 
 class FullAssistant(MarketAssistant):
+ def __init__(self,cfg):
+  super().__init__(cfg)
+  # Register Torn's item metadata so every market link contains ID + name + type.
+  # Patch the legacy module globals too, because inherited scanner/menu methods
+  # resolve market_link from those modules at runtime.
+  register_catalog(self.cat)
+  core_module.market_link=market_link
+  runtime_module.market_link=market_link
+
+ def market_buttons(self,iid,back_data=None):
+  rows=[[b('🌐 Open item market',url=market_link(iid)),b('↪️ Fallback link',url=fallback_market_link(iid))]]
+  if back_data: rows.append([b('⬅️ Back',back_data)])
+  return kb(rows)
+
  def home(self):
   s=snapshot(self.db)
   self.tg.send(
@@ -97,7 +114,11 @@ class FullAssistant(MarketAssistant):
     self.db.c.execute('INSERT OR REPLACE INTO alerts VALUES(?,?)',(key,now()));self.db.c.commit()
     pnl=(suggested*(1-fee/100)-cost)*qty
     label='⚡ QUICK EXIT' if roi < target+3 else ('💎 VALUE EXIT' if roi < target+10 else '🐋 BIG PROFIT EXIT')
-    self.tg.send(f'{label}\n{name} ×{qty}\nAvg cost: {money(cost)}\nSuggested: {money(suggested)}\nEst. net P/L: {money(pnl)}\nROI: {roi:.1f}%\nConfidence: {conf:.0f}%',kb([[b('💼 Review position',f'pos:{iid}'),b('📊 Market',url=market_link(iid))],[b('🏝️ Island Fund','m:island')]]))
+    self.tg.send(
+     f'{label}\n{name} ×{qty}\nAvg cost: {money(cost)}\nSuggested: {money(suggested)}\nEst. net P/L: {money(pnl)}\nROI: {roi:.1f}%\nConfidence: {conf:.0f}%',
+     kb([[b('💼 Review position',f'pos:{iid}')],
+         [b('🌐 Open market',url=market_link(iid)),b('↪️ Fallback',url=fallback_market_link(iid))],
+         [b('🏝️ Island Fund','m:island')]]))
    except Exception as e: print('[EXIT]',name,e,flush=True)
 
 def main():
